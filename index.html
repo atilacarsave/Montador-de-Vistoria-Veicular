@@ -265,7 +265,7 @@
         }
 
         #globalOutput {
-            height: 220px;
+            height: 260px;
             resize: vertical;
             font-family: monospace;
             font-size: 14px;
@@ -275,6 +275,7 @@
             color: #F1EFF7;
             padding: 12px;
             border-radius: 8px;
+            white-space: pre-wrap;
         }
 
         .action-buttons {
@@ -498,6 +499,9 @@
 
         <!-- CAMPO GLOBAL (POSICIONADO ABAIXO DOS MÓDULOS) -->
         <div class="global-output-container">
+            <!-- ALERTA DUPLICADO SOBRE O CAMPO GLOBAL -->
+            <div id="globalLatariaAlertBox" class="alert-box hidden"></div>
+
             <div class="card" style="margin-bottom:0; display:flex; flex-direction:column;">
                 <div class="card-title">📝 TEXTO GERADO PARA COPIAR</div>
                 <textarea id="globalOutput" placeholder="As observações selecionadas serão geradas automaticamente aqui..."></textarea>
@@ -511,7 +515,7 @@
 
     <!-- ELEMENTOS FIXOS -->
     <button class="fixed-rules-btn" onclick="openRulesModal()">📖 REGRAS</button>
-    <div class="fixed-version">2.1.2026 by Átila</div>
+    <div class="fixed-version">2.2.2026 by Átila</div>
 
     <!-- POP-UP MODAL REGRAS -->
     <div class="modal-overlay" id="rulesModal" onclick="closeRulesModalOutside(event)">
@@ -789,7 +793,7 @@
             }
 
             if (occurrences.length > 0) {
-                generatedTexts[currentCategory].FAROIS = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).LOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
+                generatedTexts[currentCategory].FAROIS = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
             } else {
                 generatedTexts[currentCategory].FAROIS = '';
             }
@@ -899,7 +903,7 @@
             }
 
             if (occurrences.length > 0) {
-                generatedTexts[currentCategory].RETROVISORES = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).LOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
+                generatedTexts[currentCategory].RETROVISORES = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
             } else {
                 generatedTexts[currentCategory].RETROVISORES = '';
             }
@@ -1058,12 +1062,11 @@
             });
 
             const alertBox = document.getElementById('latariaAlertBox');
-            if (!alertBox) return;
+            const globalAlertBox = document.getElementById('globalLatariaAlertBox');
 
             if (count >= 3) {
                 const currentPerc = state[currentCategory].LATARIA.percentual;
-                alertBox.className = 'alert-box';
-                alertBox.innerHTML = `
+                const alertHTML = `
                     <div>⚠️ ATENÇÃO: ${count} AVARIAS ENTRE AMASSADOS, ARRANHÕES E ITENS QUEBRADOS. RECOMENDA-SE DEPRECIAR O VEÍCULO.</div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span>PERCENTUAL DE INDENIZAÇÃO:</span>
@@ -1078,8 +1081,25 @@
                         </select>
                     </div>
                 `;
+
+                if (alertBox) {
+                    alertBox.className = 'alert-box';
+                    alertBox.innerHTML = alertHTML;
+                }
+
+                if (globalAlertBox) {
+                    globalAlertBox.className = 'alert-box';
+                    globalAlertBox.innerHTML = alertHTML;
+                }
             } else {
-                alertBox.className = 'alert-box hidden';
+                if (alertBox) {
+                    alertBox.className = 'alert-box hidden';
+                    alertBox.innerHTML = '';
+                }
+                if (globalAlertBox) {
+                    globalAlertBox.className = 'alert-box hidden';
+                    globalAlertBox.innerHTML = '';
+                }
             }
         }
 
@@ -1229,7 +1249,7 @@
             }
 
             if (occurrences.length > 0) {
-                generatedTexts[currentCategory].LANTERNA = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).LOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
+                generatedTexts[currentCategory].LANTERNA = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
             } else {
                 generatedTexts[currentCategory].LANTERNA = '';
             }
@@ -1284,7 +1304,7 @@
 
                 <div style="margin-top: 15px;">
                     <div style="font-weight:600; margin-bottom:8px; color:#A6A4B2;">✍️ OUTRAS AVARIAS (TEXTO LIVRE):</div>
-                    <textarea placeholder="Digite aqui observações adicionais..." oninput="updateOutrosManual(this.value)">${oState.manualText}</textarea>
+                    <textarea placeholder="Digite aqui observações adicionais..." oninput="updateOutrosManual(this.value)">${oState.manualText || ''}</textarea>
                 </div>
             `;
             card.innerHTML = html;
@@ -1329,7 +1349,7 @@
                 parts.push("VEÍCULO REBAIXADO (SUSPENSÃO FIXA, DE ROSCA, A AR OU COM CORTE DE ELOS): ASSOCIADO CIENTE DE QUE, EM CASO DE NECESSIDADE DE REBOQUE PELA ASSISTÊNCIA 24 HORAS, O PRESTADOR DE SERVIÇO PODERÁ RECUSAR O ATENDIMENTO OU APRESENTAR PRAZO DE ESPERA SUPERIOR AO HABITUAL, DEVIDO ÀS CARACTERÍSTICAS DO VEÍCULO. EVENTUAIS DANOS DECORRENTES DO TRANSPORTE, BEM COMO NEGATIVAS, ATRASOS OU OUTRAS CONSEQUÊNCIAS RELACIONADAS ÀS CONDIÇÕES DA SUSPENSÃO, NÃO SERÃO DE RESPONSABILIDADE DA ASSOCIAÇÃO.");
             }
 
-            generatedTexts[currentCategory].OUTROS = parts.join('');
+            generatedTexts[currentCategory].OUTROS = parts.join('\n');
             updateGlobalOutput();
         }
 
@@ -1444,32 +1464,43 @@
 
         // CONSOLIDAÇÃO GLOBAL
         function updateGlobalOutput() {
-            let allTexts = [];
+            let allLines = [];
             const subOrder = ['LUZES', 'FAROIS', 'RETROVISORES', 'LATARIA', 'LANTERNA', 'OUTROS', 'DEPRECIAÇÃO'];
+            const noCoveragePhrase = 'LOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.';
+            let hasNoCoveragePhrase = false;
 
             ['CARROS', 'MOTOS', 'CAMINHOES'].forEach(cat => {
                 subOrder.forEach(sub => {
                     const txt = generatedTexts[cat][sub];
                     if (txt && txt.trim() !== '') {
-                        allTexts.push(txt.trim());
+                        const lines = txt.trim().split('\n');
+                        lines.forEach(l => {
+                            let cleanLine = l.trim();
+                            if (cleanLine.startsWith('LIBERADO COM OBS.:')) {
+                                cleanLine = cleanLine.replace('LIBERADO COM OBS.:', '').trim();
+                            }
+                            
+                            if (cleanLine === noCoveragePhrase) {
+                                hasNoCoveragePhrase = true;
+                            } else if (cleanLine !== '') {
+                                allLines.push(cleanLine);
+                            }
+                        });
                     }
                 });
             });
 
             const textarea = document.getElementById('globalOutput');
-            if (allTexts.length === 0) {
+            if (allLines.length === 0 && !hasNoCoveragePhrase) {
                 textarea.value = '';
                 return;
             }
 
-            let processedTexts = allTexts.map(t => {
-                if (t.startsWith('LIBERADO COM OBS.:')) {
-                    return t.replace('LIBERADO COM OBS.:', '').trim();
-                }
-                return t;
-            });
+            if (hasNoCoveragePhrase) {
+                allLines.push(noCoveragePhrase);
+            }
 
-            textarea.value = `LIBERADO COM OBS.:${processedTexts.join('')}`;
+            textarea.value = `LIBERADO COM OBS.:\n${allLines.join('\n')}`;
         }
 
         function copyToClipboard() {
