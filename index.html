@@ -485,7 +485,7 @@
     <!-- SUBABAS -->
     <div class="sub-tabs" id="subTabsContainer">
         <button class="sub-tab-btn active" onclick="switchSubTab('LUZES')">💡 LUZES</button>
-        <button class="sub-tab-btn" onclick="switchSubTab('FAROIS')">🔦 FARÓIS</button>
+        <button class="sub-tab-btn" id="tabBtnFarois" onclick="switchSubTab('FAROIS')">🔦 FARÓIS E PARABRISA</button>
         <button class="sub-tab-btn" onclick="switchSubTab('RETROVISORES')">🪞 RETROVISORES</button>
         <button class="sub-tab-btn" onclick="switchSubTab('LATARIA')">🔧 LATARIA</button>
         <button class="sub-tab-btn" onclick="switchSubTab('LANTERNA')">🔴 LANTERNA</button>
@@ -515,7 +515,7 @@
 
     <!-- ELEMENTOS FIXOS -->
     <button class="fixed-rules-btn" onclick="openRulesModal()">📖 REGRAS</button>
-    <div class="fixed-version">2.2.2026 by Átila</div>
+    <div class="fixed-version">2.3.2026 by Átila</div>
 
     <!-- POP-UP MODAL REGRAS -->
     <div class="modal-overlay" id="rulesModal" onclick="closeRulesModalOutside(event)">
@@ -598,14 +598,23 @@
         }
 
         window.onload = function() {
+            updateSubTabLabels();
             renderSubTab();
         };
+
+        function updateSubTabLabels() {
+            const btnFarois = document.getElementById('tabBtnFarois');
+            if (btnFarois) {
+                btnFarois.innerHTML = (currentCategory === 'MOTOS') ? '🔦 FARÓIS' : '🔦 FARÓIS E PARABRISA';
+            }
+        }
 
         function switchMainTab(cat) {
             currentCategory = cat;
             document.querySelectorAll('.main-tab-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.innerText.includes(cat === 'CAMINHOES' ? 'CAMINHÕES' : cat));
             });
+            updateSubTabLabels();
             renderSubTab();
         }
 
@@ -613,7 +622,9 @@
             currentSubTab = sub;
             document.querySelectorAll('.sub-tab-btn').forEach(btn => {
                 const text = btn.innerText;
-                const matches = (sub === 'DEPRECIAÇÃO' && text.includes('DEPRECIAÇÃO')) || text.includes(sub);
+                const matches = (sub === 'DEPRECIAÇÃO' && text.includes('DEPRECIAÇÃO')) ||
+                                (sub === 'FAROIS' && text.includes('FARÓIS')) ||
+                                text.includes(sub);
                 btn.classList.toggle('active', matches);
             });
             renderSubTab();
@@ -679,64 +690,94 @@
             updateGlobalOutput();
         }
 
-        // FARÓIS
+        // FARÓIS E PARABRISA
         function renderFarois(container) {
             const card = document.createElement('div');
             card.className = 'card';
 
             const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO'];
-            let colunas = [];
 
-            if (currentCategory === 'CARROS') {
-                colunas = [
-                    { id: 'MOTORISTA', label: 'LADO MOTORISTA' },
-                    { id: 'PASSAGEIRO', label: 'LADO PASSAGEIRO' },
-                    { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
-                    { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' }
-                ];
-            } else if (currentCategory === 'MOTOS') {
-                colunas = [
+            if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
+                const itens = currentCategory === 'CARROS'
+                    ? [
+                        { id: 'MOTORISTA', label: 'FAROL LADO MOTORISTA' },
+                        { id: 'PASSAGEIRO', label: 'FAROL LADO PASSAGEIRO' },
+                        { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
+                        { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' },
+                        { id: 'PARABRISA', label: 'PARABRISA' }
+                    ]
+                    : [
+                        { id: 'MOTORISTA', label: 'FAROL LADO MOTORISTA' },
+                        { id: 'PASSAGEIRO', label: 'FAROL LADO PASSAGEIRO' },
+                        { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
+                        { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' },
+                        { id: 'PARABRISA', label: 'PARABRISA' }
+                    ];
+
+                let html = `<div class="card-title">🔦 FARÓIS E PARABRISA - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
+                    <div class="matrix-table-wrapper">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">ITEM / PEÇA</th>
+                                ${avarias.map(av => `<th>${av}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                itens.forEach(item => {
+                    html += `<tr><td class="row-header">${item.label}</td>`;
+                    avarias.forEach(av => {
+                        const key = `${av}_${item.id}`;
+                        const checked = state[currentCategory].FAROIS[key] ? 'checked' : '';
+                        html += `<td>
+                            <label class="checkbox-container" style="justify-content:center;">
+                                <input type="checkbox" ${checked} onchange="toggleFarois('${key}', this.checked)">
+                            </label>
+                        </td>`;
+                    });
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            } else {
+                const colunas = [
                     { id: 'PRINCIPAL', label: 'FAROL PRINCIPAL' },
                     { id: 'SETA_ESQUERDO', label: 'SETA LADO ESQUERDO' },
                     { id: 'SETA_DIREITO', label: 'SETA LADO DIREITO' }
                 ];
-            } else {
-                colunas = [
-                    { id: 'MOTORISTA', label: 'FAROL LADO MOTORISTA' },
-                    { id: 'PASSAGEIRO', label: 'FAROL LADO PASSAGEIRO' },
-                    { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
-                    { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' }
-                ];
-            }
 
-            let html = `<div class="card-title">🔦 FARÓIS - ${currentCategory}</div>
-                <div class="matrix-table-wrapper">
-                <table class="matrix-table">
-                    <thead>
-                        <tr>
-                            <th>AVARIA</th>
-                            ${colunas.map(c => `<th>${c.label}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>`;
+                let html = `<div class="card-title">🔦 FARÓIS - ${currentCategory}</div>
+                    <div class="matrix-table-wrapper">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>AVARIA</th>
+                                ${colunas.map(c => `<th>${c.label}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>`;
 
-            avarias.forEach(av => {
-                html += `<tr><td class="row-header">${av}</td>`;
-                colunas.forEach(col => {
-                    const key = `${av}_${col.id}`;
-                    const checked = state[currentCategory].FAROIS[key] ? 'checked' : '';
-                    html += `<td>
-                        <label class="checkbox-container" style="justify-content:center;">
-                            <input type="checkbox" ${checked} onchange="toggleFarois('${key}', this.checked)">
-                        </label>
-                    </td>`;
+                avarias.forEach(av => {
+                    html += `<tr><td class="row-header">${av}</td>`;
+                    colunas.forEach(col => {
+                        const key = `${av}_${col.id}`;
+                        const checked = state[currentCategory].FAROIS[key] ? 'checked' : '';
+                        html += `<td>
+                            <label class="checkbox-container" style="justify-content:center;">
+                                <input type="checkbox" ${checked} onchange="toggleFarois('${key}', this.checked)">
+                            </label>
+                        </td>`;
+                    });
+                    html += `</tr>`;
                 });
-                html += `</tr>`;
-            });
 
-            html += `</tbody></table></div>`;
-            card.innerHTML = html;
-            container.appendChild(card);
+                html += `</tbody></table></div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            }
         }
 
         function toggleFarois(key, val) {
@@ -763,6 +804,7 @@
                     const hasPas = faroisState[`${av}_PASSAGEIRO`];
                     const hasMilhaMot = faroisState[`${av}_MILHA_MOTORISTA`];
                     const hasMilhaPas = faroisState[`${av}_MILHA_PASSAGEIRO`];
+                    const hasParabrisa = faroisState[`${av}_PARABRISA`];
 
                     if (hasMot && hasPas) occurrences.push(`${av} (FAROL EM AMBOS OS LADOS)`);
                     else {
@@ -774,6 +816,10 @@
                     else {
                         if (hasMilhaMot) occurrences.push(`${av} (MILHA LADO MOTORISTA)`);
                         if (hasMilhaPas) occurrences.push(`${av} (MILHA LADO PASSAGEIRO)`);
+                    }
+
+                    if (hasParabrisa) {
+                        occurrences.push(`${av} (PARABRISA)`);
                     }
                 });
             } else if (currentCategory === 'MOTOS') {
