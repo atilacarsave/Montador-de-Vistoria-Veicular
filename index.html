@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Observações de Vistoria Veicular</title>
+    <title>Montador de Observações de Vistoria Veicular</title>
     <style>
         * {
             box-sizing: border-box;
@@ -515,7 +515,7 @@
 
     <!-- ELEMENTOS FIXOS -->
     <button class="fixed-rules-btn" onclick="openRulesModal()">📖 REGRAS</button>
-    <div class="fixed-version">2.3.2026 by Átila</div>
+    <div class="fixed-version">2.4.2026 by Átila</div>
 
     <!-- POP-UP MODAL REGRAS -->
     <div class="modal-overlay" id="rulesModal" onclick="closeRulesModalOutside(event)">
@@ -538,7 +538,7 @@
                     </tr>
                     <tr>
                         <td>📋 Organização</td>
-                        <td>Observações em sequência, sem linhas em branco e com apenas um cabeçalho LIBERADO COM OBS.:</td>
+                        <td>Avarias agrupadas por categoria, peças organizadas por lado e cabeçalho único LIBERADO COM OBS.:</td>
                     </tr>
                     <tr>
                         <td>💰 Depreciação</td>
@@ -659,7 +659,7 @@
                 ? ['INJEÇÃO', 'AIRBAG', 'ABS'] 
                 : ['INJEÇÃO', 'ABS', 'BATERIA'];
 
-            let html = `<div class="card-title">💡 LUZES DO PAINEL ACESAS - ${currentCategory}</div><div class="options-grid">`;
+            let html = `<div class="card-title">💡 LUZES DO PAINEL ACESAS - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div><div class="options-grid">`;
             options.forEach(opt => {
                 const checked = state[currentCategory].LUZES[opt] ? 'checked' : '';
                 html += `
@@ -698,37 +698,34 @@
             const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO'];
 
             if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
-                const itens = currentCategory === 'CARROS'
-                    ? [
-                        { id: 'MOTORISTA', label: 'FAROL LADO MOTORISTA' },
-                        { id: 'PASSAGEIRO', label: 'FAROL LADO PASSAGEIRO' },
-                        { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
-                        { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' },
-                        { id: 'PARABRISA', label: 'PARABRISA' }
-                    ]
-                    : [
-                        { id: 'MOTORISTA', label: 'FAROL LADO MOTORISTA' },
-                        { id: 'PASSAGEIRO', label: 'FAROL LADO PASSAGEIRO' },
-                        { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
-                        { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' },
-                        { id: 'PARABRISA', label: 'PARABRISA' }
-                    ];
+                const pecas = [
+                    { id: 'MOTORISTA', label: 'FAROL LADO MOTORISTA' },
+                    { id: 'PASSAGEIRO', label: 'FAROL LADO PASSAGEIRO' },
+                    { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
+                    { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' },
+                    { id: 'PARABRISA', label: 'PARABRISA' }
+                ];
 
                 let html = `<div class="card-title">🔦 FARÓIS E PARABRISA - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
                     <div class="matrix-table-wrapper">
                     <table class="matrix-table">
                         <thead>
                             <tr>
-                                <th style="text-align:left;">ITEM / PEÇA</th>
+                                <th style="text-align:left;">PEÇA</th>
                                 ${avarias.map(av => `<th>${av}</th>`).join('')}
                             </tr>
                         </thead>
                         <tbody>`;
 
-                itens.forEach(item => {
-                    html += `<tr><td class="row-header">${item.label}</td>`;
+                pecas.forEach(peca => {
+                    html += `<tr><td class="row-header">${peca.label}</td>`;
                     avarias.forEach(av => {
-                        const key = `${av}_${item.id}`;
+                        if (peca.id === 'PARABRISA' && (av === 'RECUPERADO' || av === 'QUEBRADO')) {
+                            html += `<td style="color:#555366; font-size:11px;">—</td>`;
+                            return;
+                        }
+
+                        const key = `${av}_${peca.id}`;
                         const checked = state[currentCategory].FAROIS[key] ? 'checked' : '';
                         html += `<td>
                             <label class="checkbox-container" style="justify-content:center;">
@@ -743,7 +740,7 @@
                 card.innerHTML = html;
                 container.appendChild(card);
             } else {
-                const colunas = [
+                const pecas = [
                     { id: 'PRINCIPAL', label: 'FAROL PRINCIPAL' },
                     { id: 'SETA_ESQUERDO', label: 'SETA LADO ESQUERDO' },
                     { id: 'SETA_DIREITO', label: 'SETA LADO DIREITO' }
@@ -754,16 +751,16 @@
                     <table class="matrix-table">
                         <thead>
                             <tr>
-                                <th>AVARIA</th>
-                                ${colunas.map(c => `<th>${c.label}</th>`).join('')}
+                                <th style="text-align:left;">PEÇA</th>
+                                ${avarias.map(av => `<th>${av}</th>`).join('')}
                             </tr>
                         </thead>
                         <tbody>`;
 
-                avarias.forEach(av => {
-                    html += `<tr><td class="row-header">${av}</td>`;
-                    colunas.forEach(col => {
-                        const key = `${av}_${col.id}`;
+                pecas.forEach(peca => {
+                    html += `<tr><td class="row-header">${peca.label}</td>`;
+                    avarias.forEach(av => {
+                        const key = `${av}_${peca.id}`;
                         const checked = state[currentCategory].FAROIS[key] ? 'checked' : '';
                         html += `<td>
                             <label class="checkbox-container" style="justify-content:center;">
@@ -785,20 +782,15 @@
             updateFaroisText();
         }
 
-        function updateFaroisText() {
-            const faroisState = state[currentCategory].FAROIS;
+        function getFaroisOccurrences(cat) {
+            const faroisState = state[cat].FAROIS;
             const activeKeys = Object.keys(faroisState).filter(k => faroisState[k]);
-
-            if (activeKeys.length === 0) {
-                generatedTexts[currentCategory].FAROIS = '';
-                updateGlobalOutput();
-                return;
-            }
+            if (activeKeys.length === 0) return [];
 
             let occurrences = [];
             const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO'];
 
-            if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
+            if (cat === 'CARROS' || cat === 'CAMINHOES') {
                 avarias.forEach(av => {
                     const hasMot = faroisState[`${av}_MOTORISTA`];
                     const hasPas = faroisState[`${av}_PASSAGEIRO`];
@@ -806,38 +798,52 @@
                     const hasMilhaPas = faroisState[`${av}_MILHA_PASSAGEIRO`];
                     const hasParabrisa = faroisState[`${av}_PARABRISA`];
 
-                    if (hasMot && hasPas) occurrences.push(`${av} (FAROL EM AMBOS OS LADOS)`);
+                    let itemsForAv = [];
+                    if (hasMot && hasPas) itemsForAv.push('FAROL EM AMBOS OS LADOS');
                     else {
-                        if (hasMot) occurrences.push(`${av} (FAROL LADO MOTORISTA)`);
-                        if (hasPas) occurrences.push(`${av} (FAROL LADO PASSAGEIRO)`);
+                        if (hasMot) itemsForAv.push('FAROL LADO MOTORISTA');
+                        if (hasPas) itemsForAv.push('FAROL LADO PASSAGEIRO');
                     }
 
-                    if (hasMilhaMot && hasMilhaPas) occurrences.push(`${av} (MILHA EM AMBOS OS LADOS)`);
+                    if (hasMilhaMot && hasMilhaPas) itemsForAv.push('MILHA EM AMBOS OS LADOS');
                     else {
-                        if (hasMilhaMot) occurrences.push(`${av} (MILHA LADO MOTORISTA)`);
-                        if (hasMilhaPas) occurrences.push(`${av} (MILHA LADO PASSAGEIRO)`);
+                        if (hasMilhaMot) itemsForAv.push('MILHA LADO MOTORISTA');
+                        if (hasMilhaPas) itemsForAv.push('MILHA LADO PASSAGEIRO');
                     }
 
                     if (hasParabrisa) {
-                        occurrences.push(`${av} (PARABRISA)`);
+                        itemsForAv.push('PARABRISA');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
                     }
                 });
-            } else if (currentCategory === 'MOTOS') {
+            } else if (cat === 'MOTOS') {
                 avarias.forEach(av => {
                     const hasPrin = faroisState[`${av}_PRINCIPAL`];
                     const hasSetaEsq = faroisState[`${av}_SETA_ESQUERDO`];
                     const hasSetaDir = faroisState[`${av}_SETA_DIREITO`];
 
-                    if (hasPrin) occurrences.push(`${av} (FAROL PRINCIPAL)`);
+                    let itemsForAv = [];
+                    if (hasPrin) itemsForAv.push('FAROL PRINCIPAL');
 
-                    if (hasSetaEsq && hasSetaDir) occurrences.push(`${av} (SETAS EM AMBOS OS LADOS)`);
+                    if (hasSetaEsq && hasSetaDir) itemsForAv.push('SETAS DIANTEIRAS EM AMBOS OS LADOS');
                     else {
-                        if (hasSetaEsq) occurrences.push(`${av} (SETA LADO ESQUERDO)`);
-                        if (hasSetaDir) occurrences.push(`${av} (SETA LADO DIREITO)`);
+                        if (hasSetaEsq) itemsForAv.push('SETA DIANTEIRA LADO ESQUERDO');
+                        if (hasSetaDir) itemsForAv.push('SETA DIANTEIRA LADO DIREITO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
                     }
                 });
             }
+            return occurrences;
+        }
 
+        function updateFaroisText() {
+            const occurrences = getFaroisOccurrences(currentCategory);
             if (occurrences.length > 0) {
                 generatedTexts[currentCategory].FAROIS = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
             } else {
@@ -868,7 +874,7 @@
                 ];
             }
 
-            let html = `<div class="card-title">🪞 RETROVISORES - ${currentCategory}</div>
+            let html = `<div class="card-title">🪞 RETROVISORES - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
                 <div class="matrix-table-wrapper">
                 <table class="matrix-table">
                     <thead>
@@ -903,51 +909,60 @@
             updateRetrovisoresText();
         }
 
-        function updateRetrovisoresText() {
-            const retroState = state[currentCategory].RETROVISORES;
+        function getRetrovisoresOccurrences(cat) {
+            const retroState = state[cat].RETROVISORES;
             const activeKeys = Object.keys(retroState).filter(k => retroState[k]);
-
-            if (activeKeys.length === 0) {
-                generatedTexts[currentCategory].RETROVISORES = '';
-                updateGlobalOutput();
-                return;
-            }
+            if (activeKeys.length === 0) return [];
 
             let occurrences = [];
             const avarias = ['TRINCADO', 'QUEBRADO', 'ARRANHADO', 'AUSENTE'];
 
-            if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
+            if (cat === 'CARROS' || cat === 'CAMINHOES') {
                 avarias.forEach(av => {
                     const hasCapaMot = retroState[`${av}_CAPA_MOTORISTA`];
                     const hasCapaPas = retroState[`${av}_CAPA_PASSAGEIRO`];
                     const hasEspMot = retroState[`${av}_ESPELHO_MOTORISTA`];
                     const hasEspPas = retroState[`${av}_ESPELHO_PASSAGEIRO`];
 
-                    if (hasCapaMot && hasCapaPas) occurrences.push(`${av} (CAPA RETROVISOR EM AMBOS OS LADOS)`);
+                    let itemsForAv = [];
+                    if (hasCapaMot && hasCapaPas) itemsForAv.push('CAPA RETROVISOR EM AMBOS OS LADOS');
                     else {
-                        if (hasCapaMot) occurrences.push(`${av} (CAPA LADO MOTORISTA)`);
-                        if (hasCapaPas) occurrences.push(`${av} (CAPA LADO PASSAGEIRO)`);
+                        if (hasCapaMot) itemsForAv.push('CAPA RETROVISOR LADO MOTORISTA');
+                        if (hasCapaPas) itemsForAv.push('CAPA RETROVISOR LADO PASSAGEIRO');
                     }
 
-                    if (hasEspMot && hasEspPas) occurrences.push(`${av} (ESPELHO RETROVISOR EM AMBOS OS LADOS)`);
+                    if (hasEspMot && hasEspPas) itemsForAv.push('ESPELHO RETROVISOR EM AMBOS OS LADOS');
                     else {
-                        if (hasEspMot) occurrences.push(`${av} (ESPELHO LADO MOTORISTA)`);
-                        if (hasEspPas) occurrences.push(`${av} (ESPELHO LADO PASSAGEIRO)`);
+                        if (hasEspMot) itemsForAv.push('ESPELHO RETROVISOR LADO MOTORISTA');
+                        if (hasEspPas) itemsForAv.push('ESPELHO RETROVISOR LADO PASSAGEIRO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
                     }
                 });
-            } else if (currentCategory === 'MOTOS') {
+            } else if (cat === 'MOTOS') {
                 avarias.forEach(av => {
                     const hasEsq = retroState[`${av}_RETRO_ESQUERDO`];
                     const hasDir = retroState[`${av}_RETRO_DIREITO`];
 
-                    if (hasEsq && hasDir) occurrences.push(`${av} (RETROVISORES EM AMBOS OS LADOS)`);
+                    let itemsForAv = [];
+                    if (hasEsq && hasDir) itemsForAv.push('RETROVISORES EM AMBOS OS LADOS');
                     else {
-                        if (hasEsq) occurrences.push(`${av} (RETROVISOR LADO ESQUERDO)`);
-                        if (hasDir) occurrences.push(`${av} (RETROVISOR LADO DIREITO)`);
+                        if (hasEsq) itemsForAv.push('RETROVISOR LADO ESQUERDO');
+                        if (hasDir) itemsForAv.push('RETROVISOR LADO DIREITO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
                     }
                 });
             }
+            return occurrences;
+        }
 
+        function updateRetrovisoresText() {
+            const occurrences = getRetrovisoresOccurrences(currentCategory);
             if (occurrences.length > 0) {
                 generatedTexts[currentCategory].RETROVISORES = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
             } else {
@@ -957,8 +972,8 @@
         }
 
         // LATARIA
-        function getLatariaStructure() {
-            if (currentCategory === 'CARROS') {
+        function getLatariaStructureForCat(cat) {
+            if (cat === 'CARROS') {
                 return [
                     { group: 'PARTE DIANTEIRA', pieces: [
                         { id: 'capo', label: 'Capô', textName: 'CAPÔ' },
@@ -986,7 +1001,7 @@
                         { id: 'teto', label: 'Teto', textName: 'TETO' }
                     ]}
                 ];
-            } else if (currentCategory === 'MOTOS') {
+            } else if (cat === 'MOTOS') {
                 return [
                     { group: 'PARTE DIANTEIRA', pieces: [
                         { id: 'paralama_dian', label: 'Paralama dianteiro', textName: 'PARALAMA DIANTEIRO' },
@@ -1038,6 +1053,10 @@
             }
         }
 
+        function getLatariaStructure() {
+            return getLatariaStructureForCat(currentCategory);
+        }
+
         function renderLataria(container) {
             const groups = getLatariaStructure();
             const avariasList = [
@@ -1055,7 +1074,7 @@
 
             const card = document.createElement('div');
             card.className = 'card';
-            let html = `<div class="card-title">🔧 LATARIA - ${currentCategory}</div>`;
+            let html = `<div class="card-title">🔧 LATARIA - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>`;
 
             groups.forEach(g => {
                 html += `<div style="margin-top:15px; margin-bottom:8px; font-weight:600; color:#B98AFF;">${g.group}</div>
@@ -1156,9 +1175,9 @@
             updateDepreciacaoText();
         }
 
-        function updateLatariaText() {
-            const avariasState = state[currentCategory].LATARIA.avarias;
-            const groups = getLatariaStructure();
+        function getLatariaGroupTexts(cat) {
+            const avariasState = state[cat].LATARIA.avarias;
+            const groups = getLatariaStructureForCat(cat);
             
             const pieceMap = {};
             groups.forEach(g => {
@@ -1177,11 +1196,13 @@
 
             avariaTypes.forEach(type => {
                 let piecesForType = [];
-                Object.keys(avariasState).forEach(k => {
-                    if (avariasState[k] && k.endsWith(`_${type.id}`)) {
-                        const pieceId = k.replace(`_${type.id}`, '');
-                        if (pieceMap[pieceId]) piecesForType.push(pieceMap[pieceId]);
-                    }
+                groups.forEach(g => {
+                    g.pieces.forEach(p => {
+                        const key = `${p.id}_${type.id}`;
+                        if (avariasState[key]) {
+                            piecesForType.push(p.textName);
+                        }
+                    });
                 });
 
                 if (piecesForType.length > 0) {
@@ -1190,8 +1211,13 @@
                 }
             });
 
+            return avariaGroupTexts;
+        }
+
+        function updateLatariaText() {
+            const avariaGroupTexts = getLatariaGroupTexts(currentCategory);
             if (avariaGroupTexts.length > 0) {
-                generatedTexts[currentCategory].LATARIA = `AVARIAS NA LATARIA: ${avariaGroupTexts.join('; ')}.`;
+                generatedTexts[currentCategory].LATARIA = `AVARIAS NA LATARIA: ${avariaGroupTexts.join('; ')}.\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
             } else {
                 generatedTexts[currentCategory].LATARIA = '';
             }
@@ -1219,7 +1245,7 @@
                 ];
             }
 
-            let html = `<div class="card-title">🔴 LANTERNA - ${currentCategory}</div>
+            let html = `<div class="card-title">🔴 LANTERNA - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
                 <div class="matrix-table-wrapper">
                 <table class="matrix-table">
                     <thead>
@@ -1254,46 +1280,55 @@
             updateLanternaText();
         }
 
-        function updateLanternaText() {
-            const lantState = state[currentCategory].LANTERNA;
+        function getLanternaOccurrences(cat) {
+            const lantState = state[cat].LANTERNA;
             const activeKeys = Object.keys(lantState).filter(k => lantState[k]);
-
-            if (activeKeys.length === 0) {
-                generatedTexts[currentCategory].LANTERNA = '';
-                updateGlobalOutput();
-                return;
-            }
+            if (activeKeys.length === 0) return [];
 
             let occurrences = [];
             const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO', 'AUSENTE'];
 
-            if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
+            if (cat === 'CARROS' || cat === 'CAMINHOES') {
                 avarias.forEach(av => {
                     const hasMot = lantState[`${av}_MOTORISTA`];
                     const hasPas = lantState[`${av}_PASSAGEIRO`];
 
-                    if (hasMot && hasPas) occurrences.push(`${av} (LANTERNA EM AMBOS OS LADOS)`);
+                    let itemsForAv = [];
+                    if (hasMot && hasPas) itemsForAv.push('LANTERNA EM AMBOS OS LADOS');
                     else {
-                        if (hasMot) occurrences.push(`${av} (LANTERNA LADO MOTORISTA)`);
-                        if (hasPas) occurrences.push(`${av} (LANTERNA LADO PASSAGEIRO)`);
+                        if (hasMot) itemsForAv.push('LANTERNA LADO MOTORISTA');
+                        if (hasPas) itemsForAv.push('LANTERNA LADO PASSAGEIRO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
                     }
                 });
-            } else if (currentCategory === 'MOTOS') {
+            } else if (cat === 'MOTOS') {
                 avarias.forEach(av => {
                     const hasTras = lantState[`${av}_TRASEIRA`];
                     const hasSetaEsq = lantState[`${av}_SETA_ESQUERDO`];
                     const hasSetaDir = lantState[`${av}_SETA_DIREITO`];
 
-                    if (hasTras) occurrences.push(`${av} (LANTERNA TRASEIRA)`);
+                    let itemsForAv = [];
+                    if (hasTras) itemsForAv.push('LANTERNA TRASEIRA');
 
-                    if (hasSetaEsq && hasSetaDir) occurrences.push(`${av} (SETAS TRASEIRAS EM AMBOS OS LADOS)`);
+                    if (hasSetaEsq && hasSetaDir) itemsForAv.push('SETAS TRASEIRAS EM AMBOS OS LADOS');
                     else {
-                        if (hasSetaEsq) occurrences.push(`${av} (SETA TRASEIRA LADO ESQUERDO)`);
-                        if (hasSetaDir) occurrences.push(`${av} (SETA TRASEIRA LADO DIREITO)`);
+                        if (hasSetaEsq) itemsForAv.push('SETA TRASEIRA LADO ESQUERDO');
+                        if (hasSetaDir) itemsForAv.push('SETA TRASEIRA LADO DIREITO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
                     }
                 });
             }
+            return occurrences;
+        }
 
+        function updateLanternaText() {
+            const occurrences = getLanternaOccurrences(currentCategory);
             if (occurrences.length > 0) {
                 generatedTexts[currentCategory].LANTERNA = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
             } else {
@@ -1311,7 +1346,7 @@
             const isCarros = (currentCategory === 'CARROS');
 
             let html = `
-                <div class="card-title">📋 OUTROS - ${currentCategory}</div>
+                <div class="card-title">📋 OUTROS - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
                 <div class="options-grid" style="margin-bottom: 20px;">
                     <label class="checkbox-container">
                         <input type="checkbox" ${oState.p1 ? 'checked' : ''} onchange="toggleOutros('p1', this.checked)">
@@ -1407,7 +1442,7 @@
             const dState = state[currentCategory].DEPRECIAÇÃO;
 
             let html = `
-                <div class="card-title">💰 DEPRECIAÇÃO - ${currentCategory}</div>
+                <div class="card-title">💰 DEPRECIAÇÃO - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
                 <div class="options-grid" style="margin-bottom: 20px;">
                     <label class="checkbox-container">
                         <input type="checkbox" ${dState.sinistro ? 'checked' : ''} onchange="toggleDepreciacao('sinistro', this.checked)">
@@ -1500,7 +1535,7 @@
                 }
             } else {
                 if (percSelect !== 'SEM DEPRECIAÇÃO') {
-                    resultText = `DEVIDO ÀS AVARIAS, EM CASO DE INDENIZAÇÃO SERÁ PAGO ${percSelect} DA TABELA FIPE. OS LOCAIS AVARIADOS NÃO TERÃO COBERTURA EM CASO DE EVENTO.`;
+                    resultText = `DEVIDO ÀS AVARIAS, EM CASO DE INDENIZAÇÃO SERÁ PAGO ${percSelect} DA TABELA FIPE.`;
                 }
             }
 
@@ -1508,32 +1543,54 @@
             updateGlobalOutput();
         }
 
-        // CONSOLIDAÇÃO GLOBAL
+        // CONSOLIDAÇÃO GLOBAL INTELIGENTE E AGRUPADA POR CATEGORIA
         function updateGlobalOutput() {
             let allLines = [];
-            const subOrder = ['LUZES', 'FAROIS', 'RETROVISORES', 'LATARIA', 'LANTERNA', 'OUTROS', 'DEPRECIAÇÃO'];
             const noCoveragePhrase = 'LOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.';
             let hasNoCoveragePhrase = false;
 
             ['CARROS', 'MOTOS', 'CAMINHOES'].forEach(cat => {
-                subOrder.forEach(sub => {
-                    const txt = generatedTexts[cat][sub];
-                    if (txt && txt.trim() !== '') {
-                        const lines = txt.trim().split('\n');
-                        lines.forEach(l => {
-                            let cleanLine = l.trim();
-                            if (cleanLine.startsWith('LIBERADO COM OBS.:')) {
-                                cleanLine = cleanLine.replace('LIBERADO COM OBS.:', '').trim();
-                            }
-                            
-                            if (cleanLine === noCoveragePhrase) {
-                                hasNoCoveragePhrase = true;
-                            } else if (cleanLine !== '') {
-                                allLines.push(cleanLine);
-                            }
-                        });
+                // 1. LUZES
+                const luzesTxt = generatedTexts[cat].LUZES;
+                if (luzesTxt && luzesTxt.trim() !== '') {
+                    allLines.push(luzesTxt.trim());
+                }
+
+                // 2. AGRUPAMENTO DE COMPONENTES SEM PEQUENOS REPAROS (FARÓIS, RETROVISORES, LANTERNAS)
+                const faroisOcc = getFaroisOccurrences(cat);
+                const retroOcc = getRetrovisoresOccurrences(cat);
+                const lanternaOcc = getLanternaOccurrences(cat);
+
+                const allSmallRepairsOcc = [...faroisOcc, ...retroOcc, ...lanternaOcc];
+                if (allSmallRepairsOcc.length > 0) {
+                    allLines.push(`SEM DIREITO A PEQUENOS REPAROS: ${allSmallRepairsOcc.join('; ')}.`);
+                    hasNoCoveragePhrase = true;
+                }
+
+                // 3. LATARIA (AGRUPADA POR TIPO DE AVARIA E ORDENADA POR PEÇAS/LADOS)
+                const latariaGroups = getLatariaGroupTexts(cat);
+                if (latariaGroups.length > 0) {
+                    allLines.push(`AVARIAS NA LATARIA: ${latariaGroups.join('; ')}.`);
+                    hasNoCoveragePhrase = true;
+                }
+
+                // 4. OUTROS
+                const outrosTxt = generatedTexts[cat].OUTROS;
+                if (outrosTxt && outrosTxt.trim() !== '') {
+                    outrosTxt.trim().split('\n').forEach(l => {
+                        let cleanLine = l.trim();
+                        if (cleanLine !== '') allLines.push(cleanLine);
+                    });
+                }
+
+                // 5. DEPRECIAÇÃO
+                const deprecTxt = generatedTexts[cat].DEPRECIAÇÃO;
+                if (deprecTxt && deprecTxt.trim() !== '') {
+                    if (deprecTxt.includes('DEVIDO ÀS AVARIAS')) {
+                        hasNoCoveragePhrase = true;
                     }
-                });
+                    allLines.push(deprecTxt.trim());
+                }
             });
 
             const textarea = document.getElementById('globalOutput');
@@ -1542,6 +1599,7 @@
                 return;
             }
 
+            // Garante a exibição única da frase de ausência de cobertura no final
             if (hasNoCoveragePhrase) {
                 allLines.push(noCoveragePhrase);
             }
