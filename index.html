@@ -1,1 +1,1650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montador de Observações de Vistoria Veicular</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
+        body {
+            background-color: #171720;
+            color: #F1EFF7;
+            padding: 20px;
+            padding-bottom: 60px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #252431;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #F1EFF7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Abas Principais */
+        .main-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #252431;
+            padding-bottom: 10px;
+        }
+
+        .main-tab-btn {
+            background-color: #252431;
+            color: #A6A4B2;
+            border: 1px solid transparent;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-tab-btn:hover {
+            background-color: #FFD84D;
+            color: #171720;
+        }
+
+        .main-tab-btn.active {
+            background-color: #B98AFF;
+            color: #171720;
+        }
+
+        /* Subabas */
+        .sub-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .sub-tab-btn {
+            background-color: #252431;
+            color: #A6A4B2;
+            border: 1px solid transparent;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sub-tab-btn:hover {
+            background-color: #FFD84D;
+            color: #171720;
+        }
+
+        .sub-tab-btn.active {
+            background-color: #B98AFF;
+            color: #171720;
+        }
+
+        /* Work Area Cards */
+        .card {
+            background-color: #252431;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #F1EFF7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #171720;
+            padding-bottom: 8px;
+        }
+
+        /* Tables & Grid Controls */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background-color: #171720;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            user-select: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .checkbox-container:hover {
+            background-color: #FFD84D;
+            color: #171720;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #A6A4B2;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background-color: transparent;
+            flex-shrink: 0;
+        }
+
+        .checkbox-container input[type="checkbox"]:checked {
+            background-color: #B98AFF;
+            border-color: #B98AFF;
+        }
+
+        .checkbox-container input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            color: #171720;
+            font-size: 13px;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Matrix Tables */
+        .matrix-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .matrix-table th, .matrix-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #171720;
+        }
+
+        .matrix-table th {
+            background-color: #171720;
+            color: #F1EFF7;
+            font-weight: 600;
+        }
+
+        .matrix-table td.row-header {
+            text-align: left;
+            font-weight: 500;
+            background-color: #1d1c27;
+        }
+
+        .matrix-table tr:hover td {
+            background-color: rgba(255, 216, 77, 0.1);
+        }
+
+        /* Alert Panel */
+        .alert-box {
+            background-color: rgba(255, 216, 77, 0.15);
+            border: 1px solid #FFD84D;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            color: #FFD84D;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .alert-box select {
+            background-color: #171720;
+            color: #F1EFF7;
+            border: 1px solid #FFD84D;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Form Inputs */
+        select, textarea, input[type="text"] {
+            width: 100%;
+            background-color: #171720;
+            color: #F1EFF7;
+            border: 1px solid #363445;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        select:focus, textarea:focus, input[type="text"]:focus {
+            border-color: #B98AFF;
+        }
+
+        /* Output / Global Field */
+        .global-output-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        #globalOutput {
+            height: 260px;
+            resize: vertical;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #171720;
+            border: 1px solid #B98AFF;
+            color: #F1EFF7;
+            padding: 12px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-copy {
+            background-color: #B98AFF;
+            color: #171720;
+        }
+
+        .btn-copy:hover {
+            background-color: #FFD84D;
+            color: #171720;
+        }
+
+        .btn-clear {
+            background-color: #363445;
+            color: #F1EFF7;
+        }
+
+        .btn-clear:hover {
+            background-color: #ff5555;
+            color: #ffffff;
+        }
+
+        /* Fixed Elements */
+        .fixed-rules-btn {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background-color: #252431;
+            color: #F1EFF7;
+            border: 1px solid #B98AFF;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            z-index: 100;
+            transition: all 0.2s ease;
+        }
+
+        .fixed-rules-btn:hover {
+            background-color: #FFD84D;
+            color: #171720;
+            border-color: #FFD84D;
+        }
+
+        .fixed-version {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            color: #A6A4B2;
+            font-size: 12px;
+            font-family: monospace;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* Modal / Pop-up */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #252431;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid #B98AFF;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #171720;
+            padding-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #F1EFF7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #A6A4B2;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .modal-close:hover {
+            color: #FFD84D;
+        }
+
+        .rules-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .rules-table th, .rules-table td {
+            padding: 10px;
+            border: 1px solid #171720;
+            text-align: left;
+        }
+
+        .rules-table th {
+            background-color: #171720;
+            color: #B98AFF;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #B98AFF;
+            color: #171720;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: fadeInOut 2.5s forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-10px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📋 Montador de Observações de Vistoria Veicular</h1>
+    </header>
+
+    <!-- ABA PRINCIPAL -->
+    <div class="main-tabs">
+        <button class="main-tab-btn active" onclick="switchMainTab('CARROS')">🚗 CARROS</button>
+        <button class="main-tab-btn" onclick="switchMainTab('MOTOS')">🏍️ MOTOS</button>
+        <button class="main-tab-btn" onclick="switchMainTab('CAMINHOES')">🚚 CAMINHÕES</button>
+    </div>
+
+    <!-- SUBABAS -->
+    <div class="sub-tabs" id="subTabsContainer">
+        <button class="sub-tab-btn active" onclick="switchSubTab('LUZES')">💡 LUZES</button>
+        <button class="sub-tab-btn" id="tabBtnFarois" onclick="switchSubTab('FAROIS')">🔦 FARÓIS E PARABRISA</button>
+        <button class="sub-tab-btn" onclick="switchSubTab('RETROVISORES')">🪞 RETROVISORES</button>
+        <button class="sub-tab-btn" onclick="switchSubTab('LATARIA')">🔧 LATARIA</button>
+        <button class="sub-tab-btn" onclick="switchSubTab('LANTERNA')">🔴 LANTERNA</button>
+        <button class="sub-tab-btn" onclick="switchSubTab('OUTROS')">📋 OUTROS</button>
+        <button class="sub-tab-btn" onclick="switchSubTab('DEPRECIAÇÃO')">💰 DEPRECIAÇÃO</button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:20px;">
+        <!-- ÁREA DINÂMICA DE SUBABAS -->
+        <div id="dynamicContent"></div>
+
+        <!-- CAMPO GLOBAL (POSICIONADO ABAIXO DOS MÓDULOS) -->
+        <div class="global-output-container">
+            <!-- ALERTA DUPLICADO SOBRE O CAMPO GLOBAL -->
+            <div id="globalLatariaAlertBox" class="alert-box hidden"></div>
+
+            <div class="card" style="margin-bottom:0; display:flex; flex-direction:column;">
+                <div class="card-title">📝 TEXTO GERADO PARA COPIAR</div>
+                <textarea id="globalOutput" placeholder="As observações selecionadas serão geradas automaticamente aqui..."></textarea>
+                <div class="action-buttons" style="margin-top: 15px;">
+                    <button class="btn btn-copy" onclick="copyToClipboard()">📋 COPIAR TEXTO</button>
+                    <button class="btn btn-clear" onclick="clearGlobalText()">🗑️ LIMPAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ELEMENTOS FIXOS -->
+    <button class="fixed-rules-btn" onclick="openRulesModal()">📖 REGRAS</button>
+    <div class="fixed-version">2.4.2026 by Átila</div>
+
+    <!-- POP-UP MODAL REGRAS -->
+    <div class="modal-overlay" id="rulesModal" onclick="closeRulesModalOutside(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📖 REGRAS DO SISTEMA</div>
+                <button class="modal-close" onclick="closeRulesModal()">✖</button>
+            </div>
+            <table class="rules-table">
+                <thead>
+                    <tr>
+                        <th>Tópico</th>
+                        <th>Regra resumida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>📝 Geração de textos</td>
+                        <td>Textos automáticos em letras maiúsculas, preservando acentos e pontuação.</td>
+                    </tr>
+                    <tr>
+                        <td>📋 Organização</td>
+                        <td>Avarias agrupadas por categoria, peças organizadas por lado e cabeçalho único LIBERADO COM OBS.:</td>
+                    </tr>
+                    <tr>
+                        <td>💰 Depreciação</td>
+                        <td>Aplicar condições e percentuais aprovados; prevalece o menor percentual.</td>
+                    </tr>
+                    <tr>
+                        <td>⚠️ Alerta de avarias</td>
+                        <td>Aviso visual quando houver três ou mais avarias elegíveis.</td>
+                    </tr>
+                    <tr>
+                        <td>🔄 Sincronização</td>
+                        <td>Percentual compartilhado entre LATARIA e DEPRECIAÇÃO.</td>
+                    </tr>
+                    <tr>
+                        <td>✍️ Textos manuais</td>
+                        <td>Atualizar uma categoria sem apagar textos de outras categorias ou textos manuais.</td>
+                    </tr>
+                    <tr>
+                        <td>📋 Copiar e limpar</td>
+                        <td>Copiar todo o conteúdo ou limpar somente após confirmação.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-clear" style="align-self: flex-end; max-width: 120px;" onclick="closeRulesModal()">FECHAR</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">✅ Texto copiado com sucesso!</div>
+
+    <script>
+        // ESTADO GLOBAL DO SISTEMA
+        let currentCategory = 'CARROS';
+        let currentSubTab = 'LUZES';
+
+        const state = {
+            CARROS: createCategoryState('CARROS'),
+            MOTOS: createCategoryState('MOTOS'),
+            CAMINHOES: createCategoryState('CAMINHOES')
+        };
+
+        const generatedTexts = {
+            CARROS: { LUZES: '', FAROIS: '', RETROVISORES: '', LATARIA: '', LANTERNA: '', OUTROS: '', DEPRECIAÇÃO: '' },
+            MOTOS: { LUZES: '', FAROIS: '', RETROVISORES: '', LATARIA: '', LANTERNA: '', OUTROS: '', DEPRECIAÇÃO: '' },
+            CAMINHOES: { LUZES: '', FAROIS: '', RETROVISORES: '', LATARIA: '', LANTERNA: '', OUTROS: '', DEPRECIAÇÃO: '' }
+        };
+
+        function createCategoryState(cat) {
+            return {
+                LUZES: {},
+                FAROIS: {},
+                RETROVISORES: {},
+                LATARIA: { avarias: {}, percentual: 'SEM DEPRECIAÇÃO' },
+                LANTERNA: {},
+                OUTROS: { p1: false, p2: false, p3: false, p4: false, pneus: false, plotado: false, rebaixado: false, manualText: '' },
+                DEPRECIAÇÃO: { sinistro: false, leilao: false, chassi: false, percentual: 'SEM DEPRECIAÇÃO', order: [] }
+            };
+        }
+
+        window.onload = function() {
+            updateSubTabLabels();
+            renderSubTab();
+        };
+
+        function updateSubTabLabels() {
+            const btnFarois = document.getElementById('tabBtnFarois');
+            if (btnFarois) {
+                btnFarois.innerHTML = (currentCategory === 'MOTOS') ? '🔦 FARÓIS' : '🔦 FARÓIS E PARABRISA';
+            }
+        }
+
+        function switchMainTab(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.main-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.includes(cat === 'CAMINHOES' ? 'CAMINHÕES' : cat));
+            });
+            updateSubTabLabels();
+            renderSubTab();
+        }
+
+        function switchSubTab(sub) {
+            currentSubTab = sub;
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+                const text = btn.innerText;
+                const matches = (sub === 'DEPRECIAÇÃO' && text.includes('DEPRECIAÇÃO')) ||
+                                (sub === 'FAROIS' && text.includes('FARÓIS')) ||
+                                text.includes(sub);
+                btn.classList.toggle('active', matches);
+            });
+            renderSubTab();
+        }
+
+        function formatGrammaticalList(items) {
+            if (!items || items.length === 0) return '';
+            if (items.length === 1) return items[0];
+            if (items.length === 2) return `${items[0]} E ${items[1]}`;
+            return `${items.slice(0, -1).join(', ')} E ${items[items.length - 1]}`;
+        }
+
+        function renderSubTab() {
+            const container = document.getElementById('dynamicContent');
+            container.innerHTML = '';
+
+            if (currentSubTab === 'LUZES') renderLuzes(container);
+            else if (currentSubTab === 'FAROIS') renderFarois(container);
+            else if (currentSubTab === 'RETROVISORES') renderRetrovisores(container);
+            else if (currentSubTab === 'LATARIA') renderLataria(container);
+            else if (currentSubTab === 'LANTERNA') renderLanterna(container);
+            else if (currentSubTab === 'OUTROS') renderOutros(container);
+            else if (currentSubTab === 'DEPRECIAÇÃO') renderDepreciacao(container);
+        }
+
+        // LUZES
+        function renderLuzes(container) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            let options = (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') 
+                ? ['INJEÇÃO', 'AIRBAG', 'ABS'] 
+                : ['INJEÇÃO', 'ABS', 'BATERIA'];
+
+            let html = `<div class="card-title">💡 LUZES DO PAINEL ACESAS - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div><div class="options-grid">`;
+            options.forEach(opt => {
+                const checked = state[currentCategory].LUZES[opt] ? 'checked' : '';
+                html += `
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${checked} onchange="toggleLuzes('${opt}', this.checked)">
+                        ${opt}
+                    </label>
+                `;
+            });
+            html += `</div>`;
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+
+        function toggleLuzes(opt, val) {
+            state[currentCategory].LUZES[opt] = val;
+            updateLuzesText();
+        }
+
+        function updateLuzesText() {
+            const selected = Object.keys(state[currentCategory].LUZES).filter(k => state[currentCategory].LUZES[k]);
+            if (selected.length > 0) {
+                const listText = formatGrammaticalList(selected);
+                generatedTexts[currentCategory].LUZES = `LUZES DO PAINEL ACESAS: ${listText}.`;
+            } else {
+                generatedTexts[currentCategory].LUZES = '';
+            }
+            updateGlobalOutput();
+        }
+
+        // FARÓIS E PARABRISA
+        function renderFarois(container) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO'];
+
+            if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
+                const pecas = [
+                    { id: 'MOTORISTA', label: 'FAROL LADO MOTORISTA' },
+                    { id: 'PASSAGEIRO', label: 'FAROL LADO PASSAGEIRO' },
+                    { id: 'MILHA_MOTORISTA', label: 'MILHA LADO MOTORISTA' },
+                    { id: 'MILHA_PASSAGEIRO', label: 'MILHA LADO PASSAGEIRO' },
+                    { id: 'PARABRISA', label: 'PARABRISA' }
+                ];
+
+                let html = `<div class="card-title">🔦 FARÓIS E PARABRISA - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
+                    <div class="matrix-table-wrapper">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">PEÇA</th>
+                                ${avarias.map(av => `<th>${av}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                pecas.forEach(peca => {
+                    html += `<tr><td class="row-header">${peca.label}</td>`;
+                    avarias.forEach(av => {
+                        if (peca.id === 'PARABRISA' && (av === 'RECUPERADO' || av === 'QUEBRADO')) {
+                            html += `<td style="color:#555366; font-size:11px;">—</td>`;
+                            return;
+                        }
+
+                        const key = `${av}_${peca.id}`;
+                        const checked = state[currentCategory].FAROIS[key] ? 'checked' : '';
+                        html += `<td>
+                            <label class="checkbox-container" style="justify-content:center;">
+                                <input type="checkbox" ${checked} onchange="toggleFarois('${key}', this.checked)">
+                            </label>
+                        </td>`;
+                    });
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            } else {
+                const pecas = [
+                    { id: 'PRINCIPAL', label: 'FAROL PRINCIPAL' },
+                    { id: 'SETA_ESQUERDO', label: 'SETA LADO ESQUERDO' },
+                    { id: 'SETA_DIREITO', label: 'SETA LADO DIREITO' }
+                ];
+
+                let html = `<div class="card-title">🔦 FARÓIS - ${currentCategory}</div>
+                    <div class="matrix-table-wrapper">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">PEÇA</th>
+                                ${avarias.map(av => `<th>${av}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                pecas.forEach(peca => {
+                    html += `<tr><td class="row-header">${peca.label}</td>`;
+                    avarias.forEach(av => {
+                        const key = `${av}_${peca.id}`;
+                        const checked = state[currentCategory].FAROIS[key] ? 'checked' : '';
+                        html += `<td>
+                            <label class="checkbox-container" style="justify-content:center;">
+                                <input type="checkbox" ${checked} onchange="toggleFarois('${key}', this.checked)">
+                            </label>
+                        </td>`;
+                    });
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            }
+        }
+
+        function toggleFarois(key, val) {
+            state[currentCategory].FAROIS[key] = val;
+            updateFaroisText();
+        }
+
+        function getFaroisOccurrences(cat) {
+            const faroisState = state[cat].FAROIS;
+            const activeKeys = Object.keys(faroisState).filter(k => faroisState[k]);
+            if (activeKeys.length === 0) return [];
+
+            let occurrences = [];
+            const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO'];
+
+            if (cat === 'CARROS' || cat === 'CAMINHOES') {
+                avarias.forEach(av => {
+                    const hasMot = faroisState[`${av}_MOTORISTA`];
+                    const hasPas = faroisState[`${av}_PASSAGEIRO`];
+                    const hasMilhaMot = faroisState[`${av}_MILHA_MOTORISTA`];
+                    const hasMilhaPas = faroisState[`${av}_MILHA_PASSAGEIRO`];
+                    const hasParabrisa = faroisState[`${av}_PARABRISA`];
+
+                    let itemsForAv = [];
+                    if (hasMot && hasPas) itemsForAv.push('FAROL EM AMBOS OS LADOS');
+                    else {
+                        if (hasMot) itemsForAv.push('FAROL LADO MOTORISTA');
+                        if (hasPas) itemsForAv.push('FAROL LADO PASSAGEIRO');
+                    }
+
+                    if (hasMilhaMot && hasMilhaPas) itemsForAv.push('MILHA EM AMBOS OS LADOS');
+                    else {
+                        if (hasMilhaMot) itemsForAv.push('MILHA LADO MOTORISTA');
+                        if (hasMilhaPas) itemsForAv.push('MILHA LADO PASSAGEIRO');
+                    }
+
+                    if (hasParabrisa) {
+                        itemsForAv.push('PARABRISA');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
+                    }
+                });
+            } else if (cat === 'MOTOS') {
+                avarias.forEach(av => {
+                    const hasPrin = faroisState[`${av}_PRINCIPAL`];
+                    const hasSetaEsq = faroisState[`${av}_SETA_ESQUERDO`];
+                    const hasSetaDir = faroisState[`${av}_SETA_DIREITO`];
+
+                    let itemsForAv = [];
+                    if (hasPrin) itemsForAv.push('FAROL PRINCIPAL');
+
+                    if (hasSetaEsq && hasSetaDir) itemsForAv.push('SETAS DIANTEIRAS EM AMBOS OS LADOS');
+                    else {
+                        if (hasSetaEsq) itemsForAv.push('SETA DIANTEIRA LADO ESQUERDO');
+                        if (hasSetaDir) itemsForAv.push('SETA DIANTEIRA LADO DIREITO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
+                    }
+                });
+            }
+            return occurrences;
+        }
+
+        function updateFaroisText() {
+            const occurrences = getFaroisOccurrences(currentCategory);
+            if (occurrences.length > 0) {
+                generatedTexts[currentCategory].FAROIS = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
+            } else {
+                generatedTexts[currentCategory].FAROIS = '';
+            }
+            updateGlobalOutput();
+        }
+
+        // RETROVISORES
+        function renderRetrovisores(container) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const avarias = ['TRINCADO', 'QUEBRADO', 'ARRANHADO', 'AUSENTE'];
+            let colunas = [];
+
+            if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
+                colunas = [
+                    { id: 'CAPA_MOTORISTA', label: 'CAPA LADO MOTORISTA' },
+                    { id: 'CAPA_PASSAGEIRO', label: 'CAPA LADO PASSAGEIRO' },
+                    { id: 'ESPELHO_MOTORISTA', label: 'ESPELHO LADO MOTORISTA' },
+                    { id: 'ESPELHO_PASSAGEIRO', label: 'ESPELHO LADO PASSAGEIRO' }
+                ];
+            } else {
+                colunas = [
+                    { id: 'RETRO_ESQUERDO', label: 'RETROVISOR LADO ESQUERDO' },
+                    { id: 'RETRO_DIREITO', label: 'RETROVISOR LADO DIREITO' }
+                ];
+            }
+
+            let html = `<div class="card-title">🪞 RETROVISORES - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
+                <div class="matrix-table-wrapper">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>AVARIA</th>
+                            ${colunas.map(c => `<th>${c.label}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            avarias.forEach(av => {
+                html += `<tr><td class="row-header">${av}</td>`;
+                colunas.forEach(col => {
+                    const key = `${av}_${col.id}`;
+                    const checked = state[currentCategory].RETROVISORES[key] ? 'checked' : '';
+                    html += `<td>
+                        <label class="checkbox-container" style="justify-content:center;">
+                            <input type="checkbox" ${checked} onchange="toggleRetrovisores('${key}', this.checked)">
+                        </label>
+                    </td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+
+        function toggleRetrovisores(key, val) {
+            state[currentCategory].RETROVISORES[key] = val;
+            updateRetrovisoresText();
+        }
+
+        function getRetrovisoresOccurrences(cat) {
+            const retroState = state[cat].RETROVISORES;
+            const activeKeys = Object.keys(retroState).filter(k => retroState[k]);
+            if (activeKeys.length === 0) return [];
+
+            let occurrences = [];
+            const avarias = ['TRINCADO', 'QUEBRADO', 'ARRANHADO', 'AUSENTE'];
+
+            if (cat === 'CARROS' || cat === 'CAMINHOES') {
+                avarias.forEach(av => {
+                    const hasCapaMot = retroState[`${av}_CAPA_MOTORISTA`];
+                    const hasCapaPas = retroState[`${av}_CAPA_PASSAGEIRO`];
+                    const hasEspMot = retroState[`${av}_ESPELHO_MOTORISTA`];
+                    const hasEspPas = retroState[`${av}_ESPELHO_PASSAGEIRO`];
+
+                    let itemsForAv = [];
+                    if (hasCapaMot && hasCapaPas) itemsForAv.push('CAPA RETROVISOR EM AMBOS OS LADOS');
+                    else {
+                        if (hasCapaMot) itemsForAv.push('CAPA RETROVISOR LADO MOTORISTA');
+                        if (hasCapaPas) itemsForAv.push('CAPA RETROVISOR LADO PASSAGEIRO');
+                    }
+
+                    if (hasEspMot && hasEspPas) itemsForAv.push('ESPELHO RETROVISOR EM AMBOS OS LADOS');
+                    else {
+                        if (hasEspMot) itemsForAv.push('ESPELHO RETROVISOR LADO MOTORISTA');
+                        if (hasEspPas) itemsForAv.push('ESPELHO RETROVISOR LADO PASSAGEIRO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
+                    }
+                });
+            } else if (cat === 'MOTOS') {
+                avarias.forEach(av => {
+                    const hasEsq = retroState[`${av}_RETRO_ESQUERDO`];
+                    const hasDir = retroState[`${av}_RETRO_DIREITO`];
+
+                    let itemsForAv = [];
+                    if (hasEsq && hasDir) itemsForAv.push('RETROVISORES EM AMBOS OS LADOS');
+                    else {
+                        if (hasEsq) itemsForAv.push('RETROVISOR LADO ESQUERDO');
+                        if (hasDir) itemsForAv.push('RETROVISOR LADO DIREITO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
+                    }
+                });
+            }
+            return occurrences;
+        }
+
+        function updateRetrovisoresText() {
+            const occurrences = getRetrovisoresOccurrences(currentCategory);
+            if (occurrences.length > 0) {
+                generatedTexts[currentCategory].RETROVISORES = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
+            } else {
+                generatedTexts[currentCategory].RETROVISORES = '';
+            }
+            updateGlobalOutput();
+        }
+
+        // LATARIA
+        function getLatariaStructureForCat(cat) {
+            if (cat === 'CARROS') {
+                return [
+                    { group: 'PARTE DIANTEIRA', pieces: [
+                        { id: 'capo', label: 'Capô', textName: 'CAPÔ' },
+                        { id: 'parachoque_dian', label: 'Para-choque dianteiro', textName: 'PARA-CHOQUE DIANTEIRO' },
+                        { id: 'paralama_dian_esq', label: 'Para-lama dianteiro esquerdo', textName: 'PARA-LAMA DIANTEIRO LADO MOTORISTA' },
+                        { id: 'paralama_dian_dir', label: 'Para-lama dianteiro direito', textName: 'PARA-LAMA DIANTEIRO LADO PASSAGEIRO' }
+                    ]},
+                    { group: 'LADO MOTORISTA (ESQUERDO)', pieces: [
+                        { id: 'porta_dian_esq', label: 'Porta dianteira esquerda', textName: 'PORTA DIANTEIRA LADO MOTORISTA' },
+                        { id: 'porta_tras_esq', label: 'Porta traseira esquerda', textName: 'PORTA TRASEIRA LADO MOTORISTA' },
+                        { id: 'lateral_tras_esq', label: 'Lateral traseira esquerda', textName: 'LATERAL TRASEIRA LADO MOTORISTA' },
+                        { id: 'paralama_tras_esq', label: 'Para-lama traseiro esquerdo', textName: 'PARA-LAMA TRASEIRO LADO MOTORISTA' }
+                    ]},
+                    { group: 'LADO PASSAGEIRO (DIREITO)', pieces: [
+                        { id: 'porta_dian_dir', label: 'Porta dianteira direita', textName: 'PORTA DIANTEIRA LADO PASSAGEIRO' },
+                        { id: 'porta_tras_dir', label: 'Porta traseira direita', textName: 'PORTA TRASEIRA LADO PASSAGEIRO' },
+                        { id: 'lateral_tras_dir', label: 'Lateral traseira direita', textName: 'LATERAL TRASEIRA LADO PASSAGEIRO' },
+                        { id: 'paralama_tras_dir', label: 'Para-lama traseiro direito', textName: 'PARA-LAMA TRASEIRO LADO PASSAGEIRO' }
+                    ]},
+                    { group: 'PARTE TRASEIRA', pieces: [
+                        { id: 'parachoque_tras', label: 'Para-choque traseiro', textName: 'PARA-CHOQUE TRASEIRO' },
+                        { id: 'tampa_tras', label: 'Tampa traseira', textName: 'TAMPA TRASEIRA' }
+                    ]},
+                    { group: 'PARTE SUPERIOR', pieces: [
+                        { id: 'teto', label: 'Teto', textName: 'TETO' }
+                    ]}
+                ];
+            } else if (cat === 'MOTOS') {
+                return [
+                    { group: 'PARTE DIANTEIRA', pieces: [
+                        { id: 'paralama_dian', label: 'Paralama dianteiro', textName: 'PARALAMA DIANTEIRO' },
+                        { id: 'carenagem_dian', label: 'Carenagem dianteira', textName: 'CARENAGEM DIANTEIRA' },
+                        { id: 'mascara_farol', label: 'Máscara do farol', textName: 'MÁSCARA DO FAROL' }
+                    ]},
+                    { group: 'LADO ESQUERDO', pieces: [
+                        { id: 'carenagem_lat_esq', label: 'Carenagem lateral esquerda', textName: 'CARENAGEM LATERAL LADO ESQUERDO' },
+                        { id: 'tampa_lat_esq', label: 'Tampa lateral esquerda', textName: 'TAMPA LATERAL LADO ESQUERDO' }
+                    ]},
+                    { group: 'LADO DIREITO', pieces: [
+                        { id: 'carenagem_lat_dir', label: 'Carenagem lateral direita', textName: 'CARENAGEM LATERAL LADO DIREITO' },
+                        { id: 'tampa_lat_dir', label: 'Tampa lateral direita', textName: 'TAMPA LATERAL LADO DIREITO' }
+                    ]},
+                    { group: 'PARTE TRASEIRA', pieces: [
+                        { id: 'paralama_tras', label: 'Paralama traseiro', textName: 'PARALAMA TRASEIRO' },
+                        { id: 'rabeta', label: 'Rabeta', textName: 'RABETA' }
+                    ]},
+                    { group: 'PARTE SUPERIOR', pieces: [
+                        { id: 'tanque', label: 'Tanque de combustível', textName: 'TANQUE DE COMBUSTÍVEL' }
+                    ]}
+                ];
+            } else {
+                return [
+                    { group: 'PARTE DIANTEIRA', pieces: [
+                        { id: 'capo', label: 'Capô', textName: 'CAPÔ' },
+                        { id: 'parachoque_dian', label: 'Para-choque dianteiro', textName: 'PARA-CHOQUE DIANTEIRO' },
+                        { id: 'paralama_dian_esq', label: 'Para-lama dianteiro esquerdo', textName: 'PARA-LAMA DIANTEIRO LADO MOTORISTA' },
+                        { id: 'paralama_dian_dir', label: 'Para-lama dianteiro direito', textName: 'PARA-LAMA DIANTEIRO LADO PASSAGEIRO' }
+                    ]},
+                    { group: 'LADO MOTORISTA (ESQUERDO)', pieces: [
+                        { id: 'porta_dian_esq', label: 'Porta dianteira esquerda', textName: 'PORTA DIANTEIRA LADO MOTORISTA' },
+                        { id: 'lateral_cabine_esq', label: 'Lateral da cabine esquerda', textName: 'LATERAL DA CABINE LADO MOTORISTA' },
+                        { id: 'implemento_esq', label: 'Implemento lado esquerdo', textName: 'IMPLEMENTO LADO MOTORISTA' }
+                    ]},
+                    { group: 'LADO PASSAGEIRO (DIREITO)', pieces: [
+                        { id: 'porta_dian_dir', label: 'Porta dianteira direita', textName: 'PORTA DIANTEIRA LADO PASSAGEIRO' },
+                        { id: 'lateral_cabine_dir', label: 'Lateral da cabine direita', textName: 'LATERAL DA CABINE LADO PASSAGEIRO' },
+                        { id: 'implemento_dir', label: 'Implemento lado direito', textName: 'IMPLEMENTO LADO PASSAGEIRO' }
+                    ]},
+                    { group: 'PARTE TRASEIRA', pieces: [
+                        { id: 'parachoque_tras', label: 'Para-choque traseiro', textName: 'PARA-CHOQUE TRASEIRO' },
+                        { id: 'painel_tras', label: 'Painel traseiro', textName: 'PAINEL TRASEIRO' }
+                    ]},
+                    { group: 'PARTE SUPERIOR', pieces: [
+                        { id: 'teto_cabine', label: 'Teto da cabine', textName: 'TETO DA CABINE' }
+                    ]}
+                ];
+            }
+        }
+
+        function getLatariaStructure() {
+            return getLatariaStructureForCat(currentCategory);
+        }
+
+        function renderLataria(container) {
+            const groups = getLatariaStructure();
+            const avariasList = [
+                { id: 'AMASSADO', label: 'AMASSADO(A)' },
+                { id: 'ARRANHADO', label: 'ARRANHADO(A)' },
+                { id: 'QUEBRADO', label: 'QUEBRADO(A)' },
+                { id: 'TRINCADO', label: 'TRINCADO(A)' },
+                { id: 'PINTURA', label: 'PINTURA QUEIMADA' }
+            ];
+
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'latariaAlertBox';
+            alertDiv.className = 'alert-box hidden';
+            container.appendChild(alertDiv);
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            let html = `<div class="card-title">🔧 LATARIA - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>`;
+
+            groups.forEach(g => {
+                html += `<div style="margin-top:15px; margin-bottom:8px; font-weight:600; color:#B98AFF;">${g.group}</div>
+                    <div class="matrix-table-wrapper">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">PEÇA</th>
+                                ${avariasList.map(a => `<th>${a.label}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                g.pieces.forEach(p => {
+                    html += `<tr><td class="row-header">${p.label}</td>`;
+                    avariasList.forEach(a => {
+                        const key = `${p.id}_${a.id}`;
+                        const checked = state[currentCategory].LATARIA.avarias[key] ? 'checked' : '';
+                        html += `<td>
+                            <label class="checkbox-container" style="justify-content:center;">
+                                <input type="checkbox" ${checked} onchange="toggleLataria('${key}', this.checked)">
+                            </label>
+                        </td>`;
+                    });
+                    html += `</tr>`;
+                });
+                html += `</tbody></table></div>`;
+            });
+
+            card.innerHTML = html;
+            container.appendChild(card);
+            checkLatariaAlert();
+        }
+
+        function toggleLataria(key, val) {
+            state[currentCategory].LATARIA.avarias[key] = val;
+            checkLatariaAlert();
+            updateLatariaText();
+        }
+
+        function checkLatariaAlert() {
+            const avariasState = state[currentCategory].LATARIA.avarias;
+            let count = 0;
+
+            Object.keys(avariasState).forEach(k => {
+                if (avariasState[k]) {
+                    if (k.endsWith('_AMASSADO') || k.endsWith('_ARRANHADO') || k.endsWith('_QUEBRADO')) {
+                        count++;
+                    }
+                }
+            });
+
+            const alertBox = document.getElementById('latariaAlertBox');
+            const globalAlertBox = document.getElementById('globalLatariaAlertBox');
+
+            if (count >= 3) {
+                const currentPerc = state[currentCategory].LATARIA.percentual;
+                const alertHTML = `
+                    <div>⚠️ ATENÇÃO: ${count} AVARIAS ENTRE AMASSADOS, ARRANHÕES E ITENS QUEBRADOS. RECOMENDA-SE DEPRECIAR O VEÍCULO.</div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span>PERCENTUAL DE INDENIZAÇÃO:</span>
+                        <select onchange="syncLatariaPercentual(this.value)">
+                            <option value="SEM DEPRECIAÇÃO" ${currentPerc === 'SEM DEPRECIAÇÃO' ? 'selected' : ''}>SEM DEPRECIAÇÃO</option>
+                            <option value="70%" ${currentPerc === '70%' ? 'selected' : ''}>70%</option>
+                            <option value="75%" ${currentPerc === '75%' ? 'selected' : ''}>75%</option>
+                            <option value="80%" ${currentPerc === '80%' ? 'selected' : ''}>80%</option>
+                            <option value="85%" ${currentPerc === '85%' ? 'selected' : ''}>85%</option>
+                            <option value="90%" ${currentPerc === '90%' ? 'selected' : ''}>90%</option>
+                            <option value="95%" ${currentPerc === '95%' ? 'selected' : ''}>95%</option>
+                        </select>
+                    </div>
+                `;
+
+                if (alertBox) {
+                    alertBox.className = 'alert-box';
+                    alertBox.innerHTML = alertHTML;
+                }
+
+                if (globalAlertBox) {
+                    globalAlertBox.className = 'alert-box';
+                    globalAlertBox.innerHTML = alertHTML;
+                }
+            } else {
+                if (alertBox) {
+                    alertBox.className = 'alert-box hidden';
+                    alertBox.innerHTML = '';
+                }
+                if (globalAlertBox) {
+                    globalAlertBox.className = 'alert-box hidden';
+                    globalAlertBox.innerHTML = '';
+                }
+            }
+        }
+
+        function syncLatariaPercentual(val) {
+            state[currentCategory].LATARIA.percentual = val;
+            state[currentCategory].DEPRECIAÇÃO.percentual = val;
+            updateLatariaText();
+            updateDepreciacaoText();
+        }
+
+        function getLatariaGroupTexts(cat) {
+            const avariasState = state[cat].LATARIA.avarias;
+            const groups = getLatariaStructureForCat(cat);
+            
+            const pieceMap = {};
+            groups.forEach(g => {
+                g.pieces.forEach(p => pieceMap[p.id] = p.textName);
+            });
+
+            const avariaTypes = [
+                { id: 'AMASSADO', title: 'AMASSADOS' },
+                { id: 'ARRANHADO', title: 'ARRANHÕES' },
+                { id: 'QUEBRADO', title: 'QUEBRADOS' },
+                { id: 'TRINCADO', title: 'TRINCADOS' },
+                { id: 'PINTURA', title: 'PINTURA QUEIMADA' }
+            ];
+
+            let avariaGroupTexts = [];
+
+            avariaTypes.forEach(type => {
+                let piecesForType = [];
+                groups.forEach(g => {
+                    g.pieces.forEach(p => {
+                        const key = `${p.id}_${type.id}`;
+                        if (avariasState[key]) {
+                            piecesForType.push(p.textName);
+                        }
+                    });
+                });
+
+                if (piecesForType.length > 0) {
+                    const formattedPieces = formatGrammaticalList(piecesForType);
+                    avariaGroupTexts.push(`${type.title} (${formattedPieces})`);
+                }
+            });
+
+            return avariaGroupTexts;
+        }
+
+        function updateLatariaText() {
+            const avariaGroupTexts = getLatariaGroupTexts(currentCategory);
+            if (avariaGroupTexts.length > 0) {
+                generatedTexts[currentCategory].LATARIA = `AVARIAS NA LATARIA: ${avariaGroupTexts.join('; ')}.\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
+            } else {
+                generatedTexts[currentCategory].LATARIA = '';
+            }
+            updateGlobalOutput();
+        }
+
+        // LANTERNA
+        function renderLanterna(container) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO', 'AUSENTE'];
+            let colunas = [];
+
+            if (currentCategory === 'CARROS' || currentCategory === 'CAMINHOES') {
+                colunas = [
+                    { id: 'MOTORISTA', label: 'LANTERNA LADO MOTORISTA' },
+                    { id: 'PASSAGEIRO', label: 'LANTERNA LADO PASSAGEIRO' }
+                ];
+            } else {
+                colunas = [
+                    { id: 'TRASEIRA', label: 'LANTERNA TRASEIRA' },
+                    { id: 'SETA_ESQUERDO', label: 'SETA TRASEIRA LADO ESQUERDO' },
+                    { id: 'SETA_DIREITO', label: 'SETA TRASEIRA LADO DIREITO' }
+                ];
+            }
+
+            let html = `<div class="card-title">🔴 LANTERNA - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
+                <div class="matrix-table-wrapper">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>AVARIA</th>
+                            ${colunas.map(c => `<th>${c.label}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            avarias.forEach(av => {
+                html += `<tr><td class="row-header">${av}</td>`;
+                colunas.forEach(col => {
+                    const key = `${av}_${col.id}`;
+                    const checked = state[currentCategory].LANTERNA[key] ? 'checked' : '';
+                    html += `<td>
+                        <label class="checkbox-container" style="justify-content:center;">
+                            <input type="checkbox" ${checked} onchange="toggleLanterna('${key}', this.checked)">
+                        </label>
+                    </td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+
+        function toggleLanterna(key, val) {
+            state[currentCategory].LANTERNA[key] = val;
+            updateLanternaText();
+        }
+
+        function getLanternaOccurrences(cat) {
+            const lantState = state[cat].LANTERNA;
+            const activeKeys = Object.keys(lantState).filter(k => lantState[k]);
+            if (activeKeys.length === 0) return [];
+
+            let occurrences = [];
+            const avarias = ['TRINCADO', 'RECUPERADO', 'QUEBRADO', 'ARRANHADO', 'AUSENTE'];
+
+            if (cat === 'CARROS' || cat === 'CAMINHOES') {
+                avarias.forEach(av => {
+                    const hasMot = lantState[`${av}_MOTORISTA`];
+                    const hasPas = lantState[`${av}_PASSAGEIRO`];
+
+                    let itemsForAv = [];
+                    if (hasMot && hasPas) itemsForAv.push('LANTERNA EM AMBOS OS LADOS');
+                    else {
+                        if (hasMot) itemsForAv.push('LANTERNA LADO MOTORISTA');
+                        if (hasPas) itemsForAv.push('LANTERNA LADO PASSAGEIRO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
+                    }
+                });
+            } else if (cat === 'MOTOS') {
+                avarias.forEach(av => {
+                    const hasTras = lantState[`${av}_TRASEIRA`];
+                    const hasSetaEsq = lantState[`${av}_SETA_ESQUERDO`];
+                    const hasSetaDir = lantState[`${av}_SETA_DIREITO`];
+
+                    let itemsForAv = [];
+                    if (hasTras) itemsForAv.push('LANTERNA TRASEIRA');
+
+                    if (hasSetaEsq && hasSetaDir) itemsForAv.push('SETAS TRASEIRAS EM AMBOS OS LADOS');
+                    else {
+                        if (hasSetaEsq) itemsForAv.push('SETA TRASEIRA LADO ESQUERDO');
+                        if (hasSetaDir) itemsForAv.push('SETA TRASEIRA LADO DIREITO');
+                    }
+
+                    if (itemsForAv.length > 0) {
+                        occurrences.push(`${av} (${formatGrammaticalList(itemsForAv)})`);
+                    }
+                });
+            }
+            return occurrences;
+        }
+
+        function updateLanternaText() {
+            const occurrences = getLanternaOccurrences(currentCategory);
+            if (occurrences.length > 0) {
+                generatedTexts[currentCategory].LANTERNA = `SEM DIREITO A PEQUENOS REPAROS (${occurrences.join('; ')}).\nLOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.`;
+            } else {
+                generatedTexts[currentCategory].LANTERNA = '';
+            }
+            updateGlobalOutput();
+        }
+
+        // OUTROS
+        function renderOutros(container) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const oState = state[currentCategory].OUTROS;
+            const isCarros = (currentCategory === 'CARROS');
+
+            let html = `
+                <div class="card-title">📋 OUTROS - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
+                <div class="options-grid" style="margin-bottom: 20px;">
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${oState.p1 ? 'checked' : ''} onchange="toggleOutros('p1', this.checked)">
+                        ${isCarros ? 'PEQUENAS AVARIAS RELATADAS EM FOTOS' : 'Pequenas avarias relatadas em fotos'}
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${oState.p2 ? 'checked' : ''} onchange="toggleOutros('p2', this.checked)">
+                        ${isCarros ? 'BANCO RASGADO RELATADO EM FOTOS' : 'Banco rasgado relatado em fotos'}
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${oState.p3 ? 'checked' : ''} onchange="toggleOutros('p3', this.checked)">
+                        ${isCarros ? 'PEQUENOS ARRANHÕES' : 'Pequenos arranhões'}
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${oState.p4 ? 'checked' : ''} onchange="toggleOutros('p4', this.checked)">
+                        ${isCarros ? 'PERMANECE COM AS MESMAS AVARIAS' : 'Permanece com as mesmas avarias'}
+                    </label>
+                </div>
+
+                <div class="options-grid" style="margin-bottom: 20px;">
+                    <label class="checkbox-container" style="border: 1px solid #B98AFF;">
+                        <input type="checkbox" ${oState.pneus ? 'checked' : ''} onchange="toggleOutros('pneus', this.checked)">
+                        ${isCarros ? 'PNEUS CARECAS' : '🛞 PNEUS CARECAS'}
+                    </label>
+                    <label class="checkbox-container" style="border: 1px solid #B98AFF;">
+                        <input type="checkbox" ${oState.plotado ? 'checked' : ''} onchange="toggleOutros('plotado', this.checked)">
+                        ${isCarros ? 'VEÍCULO PLOTADO' : '🎨 VEÍCULO PLOTADO'}
+                    </label>
+                    ${isCarros ? `
+                    <label class="checkbox-container" style="border: 1px solid #B98AFF;">
+                        <input type="checkbox" ${oState.rebaixado ? 'checked' : ''} onchange="toggleOutros('rebaixado', this.checked)">
+                        VEÍCULO REBAIXADO
+                    </label>
+                    ` : ''}
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <div style="font-weight:600; margin-bottom:8px; color:#A6A4B2;">✍️ OUTRAS AVARIAS (TEXTO LIVRE):</div>
+                    <textarea placeholder="Digite aqui observações adicionais..." oninput="updateOutrosManual(this.value)">${oState.manualText || ''}</textarea>
+                </div>
+            `;
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+
+        function toggleOutros(key, val) {
+            state[currentCategory].OUTROS[key] = val;
+            updateOutrosText();
+        }
+
+        function updateOutrosManual(val) {
+            state[currentCategory].OUTROS.manualText = val;
+            updateOutrosText();
+        }
+
+        function updateOutrosText() {
+            const oState = state[currentCategory].OUTROS;
+            let parts = [];
+
+            if (oState.p1 && oState.p2) parts.push('PEQUENAS AVARIAS E BANCO RASGADO RELATADOS EM FOTOS.');
+            else if (oState.p1) parts.push('PEQUENAS AVARIAS RELATADAS EM FOTOS.');
+            else if (oState.p2) parts.push('BANCO RASGADO RELATADO EM FOTOS.');
+
+            if (oState.p3 && oState.p4) parts.push('VEÍCULO POSSUI PEQUENOS ARRANHÕES E PERMANECE COM AS MESMAS AVARIAS.');
+            else if (oState.p3) parts.push('VEÍCULO POSSUI PEQUENOS ARRANHÕES.');
+            else if (oState.p4) parts.push('VEÍCULO PERMANECE COM AS MESMAS AVARIAS.');
+
+            if (oState.manualText && oState.manualText.trim() !== '') {
+                parts.push(oState.manualText.trim().toUpperCase());
+            }
+
+            if (oState.pneus) {
+                parts.push("CONFORME FOTOS, FOI CONSTATADA IRREGULARIDADE NOS PNEUS COM DESGASTE ACIMA DO LIMITE LEGAL DE SEGURANÇA, CARACTERIZANDO CONDIÇÃO DE PNEU 'CARECA' OU EM ESTÁGIO AVANÇADO DE DESGASTE. DIANTE DO RISCO IMINENTE À SEGURANÇA VIÁRIA, RECOMENDA-SE A SUBSTITUIÇÃO NO PRAZO DE 3 (TRÊS) DIAS ÚTEIS. EVENTUAIS DANOS, COLISÕES OU ACIDENTES RELACIONADOS A ESSA CONDIÇÃO RESULTARÃO NA NEGATIVA DOS BENEFÍCIOS PREVISTOS NO REGULAMENTO DA CARSAVE.");
+            }
+
+            if (oState.plotado) {
+                parts.push("DEVIDO À PRESENÇA DA PELÍCULA, NÃO FOI POSSÍVEL AVALIAR A PINTURA QUANTO À SUA CONSERVAÇÃO, INTEGRIDADE E ORIGINALIDADE, BEM COMO IDENTIFICAR EVENTUAIS AVARIAS OU REPAROS DE FUNILARIA.");
+            }
+
+            if (currentCategory === 'CARROS' && oState.rebaixado) {
+                parts.push("VEÍCULO REBAIXADO (SUSPENSÃO FIXA, DE ROSCA, A AR OU COM CORTE DE ELOS): ASSOCIADO CIENTE DE QUE, EM CASO DE NECESSIDADE DE REBOQUE PELA ASSISTÊNCIA 24 HORAS, O PRESTADOR DE SERVIÇO PODERÁ RECUSAR O ATENDIMENTO OU APRESENTAR PRAZO DE ESPERA SUPERIOR AO HABITUAL, DEVIDO ÀS CARACTERÍSTICAS DO VEÍCULO. EVENTUAIS DANOS DECORRENTES DO TRANSPORTE, BEM COMO NEGATIVAS, ATRASOS OU OUTRAS CONSEQUÊNCIAS RELACIONADAS ÀS CONDIÇÕES DA SUSPENSÃO, NÃO SERÃO DE RESPONSABILIDADE DA ASSOCIAÇÃO.");
+            }
+
+            generatedTexts[currentCategory].OUTROS = parts.join('\n');
+            updateGlobalOutput();
+        }
+
+        // DEPRECIAÇÃO
+        function renderDepreciacao(container) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const dState = state[currentCategory].DEPRECIAÇÃO;
+
+            let html = `
+                <div class="card-title">💰 DEPRECIAÇÃO - ${currentCategory === 'CAMINHOES' ? 'CAMINHÕES' : currentCategory}</div>
+                <div class="options-grid" style="margin-bottom: 20px;">
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${dState.sinistro ? 'checked' : ''} onchange="toggleDepreciacao('sinistro', this.checked)">
+                        RECUPERADO DE SINISTRO (70%)
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${dState.leilao ? 'checked' : ''} onchange="toggleDepreciacao('leilao', this.checked)">
+                        LEILÃO (70%)
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${dState.chassi ? 'checked' : ''} onchange="toggleDepreciacao('chassi', this.checked)">
+                        CHASSI REMARCADO (80%)
+                    </label>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:15px; margin-top:15px;">
+                    <span style="font-weight:600; color:#A6A4B2;">PERCENTUAL DE INDENIZAÇÃO:</span>
+                    <select style="max-width:250px;" onchange="syncDepreciacaoPercentual(this.value)">
+                        <option value="SEM DEPRECIAÇÃO" ${dState.percentual === 'SEM DEPRECIAÇÃO' ? 'selected' : ''}>SEM DEPRECIAÇÃO</option>
+                        <option value="70%" ${dState.percentual === '70%' ? 'selected' : ''}>70%</option>
+                        <option value="75%" ${dState.percentual === '75%' ? 'selected' : ''}>75%</option>
+                        <option value="80%" ${dState.percentual === '80%' ? 'selected' : ''}>80%</option>
+                        <option value="85%" ${dState.percentual === '85%' ? 'selected' : ''}>85%</option>
+                        <option value="90%" ${dState.percentual === '90%' ? 'selected' : ''}>90%</option>
+                        <option value="95%" ${dState.percentual === '95%' ? 'selected' : ''}>95%</option>
+                    </select>
+                </div>
+            `;
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+
+        function toggleDepreciacao(key, val) {
+            const dState = state[currentCategory].DEPRECIAÇÃO;
+            dState[key] = val;
+
+            if (val) {
+                if (!dState.order.includes(key)) dState.order.push(key);
+            } else {
+                dState.order = dState.order.filter(k => k !== key);
+            }
+
+            updateDepreciacaoText();
+        }
+
+        function syncDepreciacaoPercentual(val) {
+            state[currentCategory].DEPRECIAÇÃO.percentual = val;
+            state[currentCategory].LATARIA.percentual = val;
+            updateDepreciacaoText();
+        }
+
+        function updateDepreciacaoText() {
+            const dState = state[currentCategory].DEPRECIAÇÃO;
+            const hasSinistro = dState.sinistro;
+            const hasLeilao = dState.leilao;
+            const hasChassi = dState.chassi;
+            const percSelect = dState.percentual;
+
+            let resultText = '';
+            const count = (hasSinistro ? 1 : 0) + (hasLeilao ? 1 : 0) + (hasChassi ? 1 : 0);
+
+            if (count > 0) {
+                let autoPerc = 100;
+                if (hasSinistro || hasLeilao) autoPerc = 70;
+                else if (hasChassi) autoPerc = 80;
+
+                let finalPercNum = autoPerc;
+                if (percSelect !== 'SEM DEPRECIAÇÃO') {
+                    const selNum = parseInt(percSelect.replace('%', ''));
+                    if (selNum < autoPerc) finalPercNum = selNum;
+                }
+                const finalPercStr = `${finalPercNum}%`;
+
+                if (hasLeilao && hasChassi && hasSinistro) {
+                    resultText = `VEÍCULO DE LEILÃO, CHASSI REMARCADO E RECUPERADO DE SINISTRO: EM CASO DE INDENIZAÇÃO, SERÁ PAGO ${finalPercStr} DA TABELA FIPE.`;
+                } else if (hasChassi && hasSinistro && !hasLeilao) {
+                    resultText = `CHASSI REMARCADO E VEÍCULO RECUPERADO DE SINISTRO: EM CASO DE INDENIZAÇÃO, SERÁ PAGO ${finalPercStr} DA TABELA FIPE.`;
+                } else if (hasChassi && hasLeilao && !hasSinistro) {
+                    resultText = `CHASSI REMARCADO E VEÍCULO DE LEILÃO: EM CASO DE INDENIZAÇÃO, SERÁ PAGO ${finalPercStr} DA TABELA FIPE.`;
+                } else if (hasLeilao && hasSinistro && !hasChassi) {
+                    resultText = `VEÍCULO DE LEILÃO E RECUPERADO DE SINISTRO: EM CASO DE INDENIZAÇÃO, SERÁ PAGO ${finalPercStr} DA TABELA FIPE.`;
+                } else {
+                    if (hasSinistro) {
+                        resultText = `VEÍCULO RECUPERADO DE SINISTRO: EM CASO DE INDENIZAÇÃO, SERÁ PAGO ${finalPercStr} DA TABELA FIPE.`;
+                    } else if (hasLeilao) {
+                        resultText = `VEÍCULO DE LEILÃO: EM CASO DE INDENIZAÇÃO, SERÁ PAGO ${finalPercStr} DA TABELA FIPE.`;
+                    } else if (hasChassi) {
+                        resultText = `CHASSI REMARCADO: EM CASO DE INDENIZAÇÃO, SERÁ PAGO ${finalPercStr} DA TABELA FIPE.`;
+                    }
+                }
+            } else {
+                if (percSelect !== 'SEM DEPRECIAÇÃO') {
+                    resultText = `DEVIDO ÀS AVARIAS, EM CASO DE INDENIZAÇÃO SERÁ PAGO ${percSelect} DA TABELA FIPE.`;
+                }
+            }
+
+            generatedTexts[currentCategory].DEPRECIAÇÃO = resultText;
+            updateGlobalOutput();
+        }
+
+        // CONSOLIDAÇÃO GLOBAL INTELIGENTE E AGRUPADA POR CATEGORIA
+        function updateGlobalOutput() {
+            let allLines = [];
+            const noCoveragePhrase = 'LOCAIS AVARIADOS SEM COBERTURA EM CASO DE EVENTO.';
+            let hasNoCoveragePhrase = false;
+
+            ['CARROS', 'MOTOS', 'CAMINHOES'].forEach(cat => {
+                // 1. LUZES
+                const luzesTxt = generatedTexts[cat].LUZES;
+                if (luzesTxt && luzesTxt.trim() !== '') {
+                    allLines.push(luzesTxt.trim());
+                }
+
+                // 2. AGRUPAMENTO DE COMPONENTES SEM PEQUENOS REPAROS (FARÓIS, RETROVISORES, LANTERNAS)
+                const faroisOcc = getFaroisOccurrences(cat);
+                const retroOcc = getRetrovisoresOccurrences(cat);
+                const lanternaOcc = getLanternaOccurrences(cat);
+
+                const allSmallRepairsOcc = [...faroisOcc, ...retroOcc, ...lanternaOcc];
+                if (allSmallRepairsOcc.length > 0) {
+                    allLines.push(`SEM DIREITO A PEQUENOS REPAROS: ${allSmallRepairsOcc.join('; ')}.`);
+                    hasNoCoveragePhrase = true;
+                }
+
+                // 3. LATARIA (AGRUPADA POR TIPO DE AVARIA E ORDENADA POR PEÇAS/LADOS)
+                const latariaGroups = getLatariaGroupTexts(cat);
+                if (latariaGroups.length > 0) {
+                    allLines.push(`AVARIAS NA LATARIA: ${latariaGroups.join('; ')}.`);
+                    hasNoCoveragePhrase = true;
+                }
+
+                // 4. OUTROS
+                const outrosTxt = generatedTexts[cat].OUTROS;
+                if (outrosTxt && outrosTxt.trim() !== '') {
+                    outrosTxt.trim().split('\n').forEach(l => {
+                        let cleanLine = l.trim();
+                        if (cleanLine !== '') allLines.push(cleanLine);
+                    });
+                }
+
+                // 5. DEPRECIAÇÃO
+                const deprecTxt = generatedTexts[cat].DEPRECIAÇÃO;
+                if (deprecTxt && deprecTxt.trim() !== '') {
+                    if (deprecTxt.includes('DEVIDO ÀS AVARIAS')) {
+                        hasNoCoveragePhrase = true;
+                    }
+                    allLines.push(deprecTxt.trim());
+                }
+            });
+
+            const textarea = document.getElementById('globalOutput');
+            if (allLines.length === 0 && !hasNoCoveragePhrase) {
+                textarea.value = '';
+                return;
+            }
+
+            // Garante a exibição única da frase de ausência de cobertura no final
+            if (hasNoCoveragePhrase) {
+                allLines.push(noCoveragePhrase);
+            }
+
+            textarea.value = `LIBERADO COM OBS.:\n${allLines.join('\n')}`;
+        }
+
+        function copyToClipboard() {
+            const textarea = document.getElementById('globalOutput');
+            if (!textarea.value || textarea.value.trim() === '') return;
+
+            textarea.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        function clearGlobalText() {
+            if (confirm("Deseja realmente limpar todo o conteúdo gerado?")) {
+                ['CARROS', 'MOTOS', 'CAMINHOES'].forEach(cat => {
+                    state[cat] = createCategoryState(cat);
+                    Object.keys(generatedTexts[cat]).forEach(sub => {
+                        generatedTexts[cat][sub] = '';
+                    });
+                });
+                document.getElementById('globalOutput').value = '';
+                renderSubTab();
+            }
+        }
+
+        function openRulesModal() {
+            document.getElementById('rulesModal').classList.add('active');
+        }
+
+        function closeRulesModal() {
+            document.getElementById('rulesModal').classList.remove('active');
+        }
+
+        function closeRulesModalOutside(e) {
+            if (e.target.id === 'rulesModal') {
+                closeRulesModal();
+            }
+        }
+    </script>
+</body>
+</html>
